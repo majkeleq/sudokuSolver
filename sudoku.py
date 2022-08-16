@@ -67,11 +67,39 @@ def sprawdzSudoku(sudoku):
     else:
         print('sory winetu')
         return False
+def znajdzUnikaty(mozliwosci):
+    kwadraty=czytajKwadraty(mozliwosci)
+    piony=czytajPiony(mozliwosci)
+    poziomy=czytajPoziomy(mozliwosci)
+    #print(piony)
+    #print(poziomy)
+    #print(kwadraty)
+    for i in range(0,9):
+        
+        temp=i//3            
+        for j in range(0,9):
+            licznik=[0,0,0,0,0,0,0,0,0]
+            if j==3 or j==6: #zwiększenie temp o 3 żeby poprawnie umieścić kwadrat w tablicy
+                temp+=3
+            for x in range(0,9):  #które pole z pionu, poziomu i kwadratu jest brane pod uwage
+                for c in range(1,10): # zlicza wystąpienia danej cyfry w pionie,poziomie i kwadracie
+                    if c in poziomy[i][x]:
+                        licznik[c-1]+=1
+                    if c in piony[j][x]:
+                        licznik[c-1]+=1
+                    if c in kwadraty[temp][x]:
+                        licznik[c-1]+=1
+            for x in range(0,9):
+                if licznik[x]==1:
+                    mozliwosci[i][j]=[x+1]
+    return mozliwosci
+
+
 def probujemy(sudoku):
     licznik=False
     while licznik==False:
         mozliwosci=[[[],[],[],[],[],[],[],[],[]],
-                   [[],[],[],[],[],[],[],[],[]],
+                    [[],[],[],[],[],[],[],[],[]],
                     [[],[],[],[],[],[],[],[],[]],
                     [[],[],[],[],[],[],[],[],[]],
                     [[],[],[],[],[],[],[],[],[]],
@@ -95,6 +123,7 @@ def probujemy(sudoku):
                         if liczba not in poziomy[i] and liczba not in piony[j] and liczba not in kwadraty[temp]:
                             mozliwosci[i][j].append(liczba)
         drukujSudoku(mozliwosci)
+        znajdzUnikaty(mozliwosci)
         for i in range(0,9):
             for j in range(0,9):
                 if len(mozliwosci[i][j])==1:
