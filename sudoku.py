@@ -67,37 +67,46 @@ def sprawdzSudoku(sudoku):
     else:
         print('sory winetu')
         return False
-def znajdzUnikaty(mozliwosci):
-    kwadraty=czytajKwadraty(mozliwosci)
+def unikatyPiony(mozliwosci):# sprawdza czy jakaś możliwość w komórce może być jedyną taką wartością w pionie - jeśli tak to wpisuje ją na sztywno jako jedyną możliwość
     piony=czytajPiony(mozliwosci)
+    for x in range(0,len(piony)):#dla każdego pionu
+        roznica=[None]*9# pusta tablica do wyłapania pojedynczej wartości
+        for i in range(0,len(piony[x])):
+            temp=[] #tablica która przechowuje wartości z komórek poza tą w której się znajdujemy
+            for j in range(0,len(piony[x])):
+                if i!=j:
+                    temp.extend(piony[x][j])
+            #list(set(piony[x][i])-set(temp)) - sprawdza możliwości na konkretnym miejscu w pionie i odejmuje od nich pozostałe możliwości w pionie - różnica zostaje zapisana
+            if roznica[i]==None: 
+                roznica[i]=list(set(piony[x][i])-set(temp)) 
+            #else:
+            #    roznica[i].append(list(set(piony[x][i])-set(temp)))   #else chyba nigdy się nie wykona
+        #jesli różnica to pojedyncza wartość to zostaje potraktowana jako jedyna możliwość
+        for i in range(0,len(piony[x])):
+            if len(roznica[i])==1:
+                mozliwosci[i][x]=roznica[i]
+    return mozliwosci
+def unikatyPoziomy(mozliwosci):#kopia unikatyPiony tylko, że dla poziomów
     poziomy=czytajPoziomy(mozliwosci)
-    #print(piony)
-    #print(poziomy)
-    #print(kwadraty)
-    for i in range(0,9):
-        
-        temp=i//3            
-        for j in range(0,9):
-            licznik=[0,0,0,0,0,0,0,0,0]
-            if j==3 or j==6: #zwiększenie temp o 3 żeby poprawnie umieścić kwadrat w tablicy
-                temp+=3
-            for x in range(0,9):  #które pole z pionu, poziomu i kwadratu jest brane pod uwage
-                for c in range(1,10): # zlicza wystąpienia danej cyfry w pionie,poziomie i kwadracie
-                    if c in poziomy[i][x]:
-                        licznik[c-1]+=1
-                    if c in piony[j][x]:
-                        licznik[c-1]+=1
-                    if c in kwadraty[temp][x]:
-                        licznik[c-1]+=1
-            for x in range(0,9):
-                if licznik[x]==1:
-                    mozliwosci[i][j]=[x+1]
+    for x in range(0,len(poziomy)):#
+        roznica=[None]*9
+        for i in range(0,len(poziomy[x])):
+            temp=[] 
+            for j in range(0,len(poziomy[x])):
+                if i!=j:
+                    temp.extend(poziomy[x][j])
+            if roznica[i]==None: 
+                roznica[i]=list(set(poziomy[x][i])-set(temp)) 
+        for i in range(0,len(poziomy[x])):
+            if len(roznica[i])==1:
+                mozliwosci[x][i]=roznica[i]
     return mozliwosci
 
-
 def probujemy(sudoku):
-    licznik=False
-    while licznik==False:
+    licznik=0
+    flaga=False
+    while flaga==False:
+        licznik+=1
         mozliwosci=[[[],[],[],[],[],[],[],[],[]],
                     [[],[],[],[],[],[],[],[],[]],
                     [[],[],[],[],[],[],[],[],[]],
@@ -110,9 +119,6 @@ def probujemy(sudoku):
         kwadraty=czytajKwadraty(sudoku)
         piony=czytajPiony(sudoku)
         poziomy=czytajPoziomy(sudoku)
-        #print(poziomy)
-        #print(piony)
-        #print(kwadraty)
         for i in range(0,9):
             temp=i//3
             for j in range(0,9):
@@ -123,52 +129,23 @@ def probujemy(sudoku):
                         if liczba not in poziomy[i] and liczba not in piony[j] and liczba not in kwadraty[temp]:
                             mozliwosci[i][j].append(liczba)
         drukujSudoku(mozliwosci)
-        znajdzUnikaty(mozliwosci)
+        #unikaty wywolujemy przed żeby można było 
+        mozliwosci=unikatyPiony(mozliwosci)
+        mozliwosci=unikatyPoziomy(mozliwosci)
+        #wyłapywanie pojedynczych wartości i wpisanie ich do rozwiazania sudoku
         for i in range(0,9):
             for j in range(0,9):
                 if len(mozliwosci[i][j])==1:
                     sudoku[i][j]=mozliwosci[i][j][0]
                     mozliwosci[i][j].pop(0)
-        
         drukujSudoku(sudoku)
-        licznik=sprawdzSudoku(sudoku)
-    drukujSudoku(mozliwosci)
+        flaga=sprawdzSudoku(sudoku)
+    #drukujSudoku(mozliwosci)
+    print(licznik)
     return sudoku
 
 
 """
-sudoku= [[2,1,9,5,4,3,6,7,8],
-        [5,4,3,8,7,6,9,1,2],
-        [8,7,6,2,1,9,3,4,5],
-        [4,3,2,7,6,5,8,9,1],
-        [7,6,5,1,9,8,2,3,4],
-        [1,9,8,4,3,2,5,6,7],
-        [3,2,1,6,5,4,7,8,9],
-        [6,5,4,9,8,7,1,2,3],
-        [9,8,7,3,2,1,4,5,6]]
-        """
-"""
-sudoku= [[2,0,9,0,0,0,6,0,0],
-        [0,4,0,8,7,0,0,1,2],
-        [8,0,0,0,1,9,0,4,0],
-        [0,3,0,7,0,0,8,0,1],
-        [0,6,5,0,0,8,0,3,0],
-        [1,0,0,0,3,0,0,0,7],
-        [0,0,0,6,5,0,7,0,9],
-        [6,0,4,0,0,0,0,2,0],
-        [0,8,0,3,0,1,4,5,0]]
-        """
-"""
-sudoku= [[0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0]]
-        """
 sudoku= [[0,3,0,0,0,6,7,5,1],
         [0,4,7,2,0,8,0,0,0],
         [6,0,0,7,0,0,0,0,2],
@@ -177,7 +154,16 @@ sudoku= [[0,3,0,0,0,6,7,5,1],
         [0,1,6,8,0,0,0,0,0],
         [0,6,5,0,0,0,8,0,9],
         [9,0,4,0,0,0,0,0,7],
-        [0,0,0,0,6,0,0,0,0]]
+        [0,0,0,0,6,0,0,0,0]]"""
+sudoku= [[0,4,0,8,0,0,0,0,6],
+        [0,0,1,0,0,6,0,0,3],
+        [0,0,6,3,4,9,8,0,0],#4 dodane
+        [2,5,0,6,0,3,0,0,0],
+        [0,0,0,0,0,7,0,0,0],#7dodane
+        [0,8,7,0,0,0,0,4,2],#2dodane
+        [0,0,0,0,9,8,7,0,0],#8 dodane
+        [0,0,0,0,0,4,0,1,0],
+        [0,0,0,0,0,2,0,0,5]]
 #drukujSudoku(sudoku)
 #sprawdzSudoku(sudoku)
 drukujSudoku(sudoku)
