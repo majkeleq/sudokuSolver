@@ -101,6 +101,38 @@ def unikatyPoziomy(mozliwosci):#kopia unikatyPiony tylko, że dla poziomów
             if len(roznica[i])==1:
                 mozliwosci[x][i]=roznica[i]
     return mozliwosci
+def dublePiony(mozliwosci):#sprawdza w pionie wystąpnienia pary możliwości, jeśli możliwość np [5,7] występuje dwukrotnie to usuwa te cyfry z pozostałych możliwości
+    piony=czytajPiony(mozliwosci)
+    
+    for x in range(0,len(piony)):#przegląda wszystkie piony
+        dubel=[]
+        for i in range(0,len(piony[x])):
+            if len(piony[x][i])==2:#jeśli możliwość zawiera 2 cyfry to zapisujemy i sprawdzamy czy występuje drugi raz
+                dubel=piony[x][i]
+                for j in range(i+1,len(piony[x])):
+                    if piony[x][j]==dubel and dubel!=[]: #czy występuje drugi raz
+                        for y in range(0,len(piony[x])):
+                            if mozliwosci[y][x]!=dubel and mozliwosci[x][y]!=[]:# jeśli tak to sprawdzamy cały pion w możliwościach i odejmujemy od nich duble
+                                mozliwosci[y][x]=list(set(mozliwosci[y][x])-set(dubel))
+    return mozliwosci
+def dublePoziomy(mozliwosci):
+    poziomy=czytajPoziomy(mozliwosci)
+    
+    for x in range(0,len(poziomy)):
+        dubel=[]      
+        for i in range(0,len(poziomy[x])):
+            if len(poziomy[x][i])==2:
+                dubel=poziomy[x][i]
+                for j in range(i+1,len(poziomy[x])):
+                    if poziomy[x][j]==dubel and dubel!=[]:
+                        for y in range(0,len(poziomy[x])):
+                            if mozliwosci[x][y]!=dubel and mozliwosci[x][y]!=[]:
+                                #print(mozliwosci[x][y])
+                                #print(dubel)
+                                mozliwosci[x][y]=list(set(mozliwosci[x][y])-set(dubel))
+                                #print(mozliwosci[x][y])
+    return mozliwosci
+
 
 def probujemy(sudoku):
     licznik=0
@@ -132,6 +164,11 @@ def probujemy(sudoku):
         #unikaty wywolujemy przed żeby można było 
         mozliwosci=unikatyPiony(mozliwosci)
         mozliwosci=unikatyPoziomy(mozliwosci)
+        mozliwosci=dublePiony(mozliwosci)
+        mozliwosci=dublePoziomy(mozliwosci)
+        mozliwosci=unikatyPiony(mozliwosci)
+        mozliwosci=unikatyPoziomy(mozliwosci)
+        drukujSudoku(mozliwosci)
         #wyłapywanie pojedynczych wartości i wpisanie ich do rozwiazania sudoku
         for i in range(0,9):
             for j in range(0,9):
@@ -157,11 +194,11 @@ sudoku= [[0,3,0,0,0,6,7,5,1],
         [0,0,0,0,6,0,0,0,0]]"""
 sudoku= [[0,4,0,8,0,0,0,0,6],
         [0,0,1,0,0,6,0,0,3],
-        [0,0,6,3,4,9,8,0,0],#4 dodane
+        [0,0,6,3,4,9,8,0,0],#4 dodane miedzy 3,a 9
         [2,5,0,6,0,3,0,0,0],
-        [0,0,0,0,0,7,0,0,0],#7dodane
-        [0,8,7,0,0,0,0,4,2],#2dodane
-        [0,0,0,0,9,8,7,0,0],#8 dodane
+        [0,0,0,0,0,0,0,0,0],#7dodane jako 6
+        [0,8,7,0,0,0,0,4,0],#2dodane na koncu
+        [0,0,0,0,9,0,7,0,0],#8 dodane miedzy 9 a 7
         [0,0,0,0,0,4,0,1,0],
         [0,0,0,0,0,2,0,0,5]]
 #drukujSudoku(sudoku)
